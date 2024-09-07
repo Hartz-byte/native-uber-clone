@@ -1,4 +1,4 @@
-// import { useSignUp } from "@clerk/clerk-expo";
+import { useSignUp } from "@clerk/clerk-expo";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import { Alert, Image, ScrollView, Text, View } from "react-native";
@@ -11,7 +11,7 @@ import { icons, images } from "@/constants";
 import { fetchAPI } from "@/lib/fetch";
 
 const SignUp = () => {
-  // const { isLoaded, signUp, setActive } = useSignUp();
+  const { isLoaded, signUp, setActive } = useSignUp();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [form, setForm] = useState({
@@ -26,61 +26,57 @@ const SignUp = () => {
   });
 
   const onSignUpPress = async () => {
-    // if (!isLoaded) return;
-    // try {
-    //   await signUp.create({
-    //     emailAddress: form.email,
-    //     password: form.password,
-    //   });
-    //   await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-    //   setVerification({
-    //     ...verification,
-    //     state: "pending",
-    //   });
-    // } catch (err: any) {
-    //   // See https://clerk.com/docs/custom-flows/error-handling
-    //   // for more info on error handling
-    //   console.log(JSON.stringify(err, null, 2));
-    //   Alert.alert("Error", err.errors[0].longMessage);
-    // }
+    if (!isLoaded) return;
+    try {
+      await signUp.create({
+        emailAddress: form.email,
+        password: form.password,
+      });
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      setVerification({
+        ...verification,
+        state: "pending",
+      });
+    } catch (err: any) {
+      console.log(JSON.stringify(err, null, 2));
+      Alert.alert("Error", err.errors[0].longMessage);
+    }
   };
 
   const onPressVerify = async () => {
-    // if (!isLoaded) return;
-    // try {
-    //   const completeSignUp = await signUp.attemptEmailAddressVerification({
-    //     code: verification.code,
-    //   });
-    //   if (completeSignUp.status === "complete") {
-    //     await fetchAPI("/(api)/user", {
-    //       method: "POST",
-    //       body: JSON.stringify({
-    //         name: form.name,
-    //         email: form.email,
-    //         clerkId: completeSignUp.createdUserId,
-    //       }),
-    //     });
-    //     await setActive({ session: completeSignUp.createdSessionId });
-    //     setVerification({
-    //       ...verification,
-    //       state: "success",
-    //     });
-    //   } else {
-    //     setVerification({
-    //       ...verification,
-    //       error: "Verification failed. Please try again.",
-    //       state: "failed",
-    //     });
-    //   }
-    // } catch (err: any) {
-    //   // See https://clerk.com/docs/custom-flows/error-handling
-    //   // for more info on error handling
-    //   setVerification({
-    //     ...verification,
-    //     error: err.errors[0].longMessage,
-    //     state: "failed",
-    //   });
-    // }
+    if (!isLoaded) return;
+    try {
+      const completeSignUp = await signUp.attemptEmailAddressVerification({
+        code: verification.code,
+      });
+      if (completeSignUp.status === "complete") {
+        // await fetchAPI("/(api)/user", {
+        //   method: "POST",
+        //   body: JSON.stringify({
+        //     name: form.name,
+        //     email: form.email,
+        //     clerkId: completeSignUp.createdUserId,
+        //   }),
+        // });
+        await setActive({ session: completeSignUp.createdSessionId });
+        setVerification({
+          ...verification,
+          state: "success",
+        });
+      } else {
+        setVerification({
+          ...verification,
+          error: "Verification failed. Please try again.",
+          state: "failed",
+        });
+      }
+    } catch (err: any) {
+      setVerification({
+        ...verification,
+        error: err.errors[0].longMessage,
+        state: "failed",
+      });
+    }
   };
 
   return (
@@ -149,6 +145,7 @@ const SignUp = () => {
           </Link>
         </View>
 
+        {/* verification code model */}
         <ReactNativeModal
           isVisible={verification.state === "pending"}
           // onBackdropPress={() =>
@@ -170,7 +167,7 @@ const SignUp = () => {
             <InputField
               label={"Code"}
               icon={icons.lock}
-              placeholder={"12345"}
+              placeholder={"Enter verification code"}
               value={verification.code}
               keyboardType="numeric"
               onChangeText={(code) =>
@@ -190,6 +187,7 @@ const SignUp = () => {
           </View>
         </ReactNativeModal>
 
+        {/* success model */}
         <ReactNativeModal isVisible={showSuccessModal}>
           <View className="bg-white px-7 py-9 rounded-2xl min-h-[300px]">
             <Image
@@ -204,7 +202,10 @@ const SignUp = () => {
             </Text>
             <CustomButton
               title="Browse Home"
-              onPress={() => router.push(`/(root)/(tabs)/home`)}
+              onPress={() => {
+                setShowSuccessModal(false);
+                router.push(`/(root)/(tabs)/home`);
+              }}
               className="mt-5"
             />
           </View>
