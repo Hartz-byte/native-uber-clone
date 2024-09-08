@@ -168,10 +168,10 @@ const Home = () => {
       });
 
       setUserLocation({
-        latitude: location.coords?.latitude,
-        longitude: location.coords?.longitude,
-        // latitude: 26.7142256,
-        // longitude: 83.4182517,
+        // latitude: location.coords?.latitude,
+        // longitude: location.coords?.longitude,
+        latitude: 26.714198821942578,
+        longitude: 83.4183401457596,
         address: `${address[0].name}, ${address[0].region}`,
       });
     })();
@@ -184,7 +184,7 @@ const Home = () => {
   }) => {
     setDestinationLocation(location);
 
-    // router.push("/(root)/find-ride");
+    router.push("/(root)/find-ride");
   };
 
   return (
